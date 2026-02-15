@@ -1,14 +1,15 @@
-<!-- src/pages/index.vue -->
+<!-- src/pages/Dashboard.vue -->
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useSites } from '@/composables/useSites';
-import type { CreateSitePayload } from '@/composables/useSites';
+import { Button } from '@/components/ui/button';
+import { Plus, Loader2 } from 'lucide-vue-next';
+
+// Components
 import StatsCards from '@/components/dashboard/StatsCards.vue';
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog.vue';
-import SiteCard from '@/components/dashboard/SiteCard.vue';
+import SitesTable from '@/components/dashboard/SitesTable.vue';
 import EmptyState from '@/components/dashboard/EmptyState.vue';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-vue-next';
 
 const {
   sites,
@@ -24,22 +25,19 @@ const {
   rebuildSite,
 } = useSites();
 
-const createDialogRef = ref<InstanceType<typeof CreateSiteDialog>>();
+const createDialogRef = ref();
 
 onMounted(() => {
   fetchSites();
 });
 
-const handleCreateSite = async (payload: CreateSitePayload) => {
-  try {
-    await createSite(payload);
-  } catch (error) {
-    console.error('Failed to create site:', error);
-  }
+const openCreateDialog = () => {
+  createDialogRef.value?.open();
 };
 
-const openCreateDialog = () => {
-  // Trigger dialog programmatically if needed
+const handleCreateSite = async (payload: any) => {
+  await createSite(payload);
+  createDialogRef.value?.close();
 };
 </script>
 
@@ -54,6 +52,7 @@ const openCreateDialog = () => {
         </p>
       </div>
 
+      <!-- Create Dialog -->
       <CreateSiteDialog
           ref="createDialogRef"
           :is-creating="isCreating"
@@ -64,28 +63,21 @@ const openCreateDialog = () => {
     <!-- Stats Cards -->
     <StatsCards :stats="stats" />
 
-    <!-- Sites Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      <SiteCard
-          v-for="site in sites"
-          :key="site.id"
-          :site="site"
+    <!-- Sites Table -->
+    <div v-if="!isLoading && sites.length > 0">
+      <SitesTable
+          :sites="sites"
           @start="startSite"
           @stop="stopSite"
           @restart="restartSite"
           @rebuild="rebuildSite"
           @delete="deleteSite"
       />
+    </div>
 
-      <!-- Loading State -->
-      <Card v-if="isLoading" class="opacity-50">
-        <CardHeader>
-          <div class="flex items-center gap-2">
-            <Loader2 class="h-4 w-4 animate-spin" />
-            <CardTitle>Loading...</CardTitle>
-          </div>
-        </CardHeader>
-      </Card>
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <Loader2 class="h-8 w-8 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Empty State -->

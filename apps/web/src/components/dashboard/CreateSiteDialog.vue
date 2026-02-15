@@ -1,7 +1,7 @@
 <!-- src/components/dashboard/CreateSiteDialog.vue -->
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { CreateSitePayload, Framework } from '@/composables/useSites';
+import type { CreateSitePayload } from '@/composables/useSites';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,7 +46,7 @@ const form = ref<CreateSitePayload>({
   envVars: {},
 });
 
-const frameworks: { value: Framework; label: string; icon: string }[] = [
+const frameworks: { value: string; label: string; icon: string }[] = [
   { value: 'nextjs', label: 'Next.js', icon: '⚡' },
   { value: 'nuxt', label: 'Nuxt', icon: '💚' },
   { value: 'vue', label: 'Vue', icon: '🟢' },

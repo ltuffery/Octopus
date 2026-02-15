@@ -3,6 +3,6 @@ import sitesRoutes from "./routes/sites.routes";
 
 const app = new Hono()
 
-app.route("/sites", sitesRoutes)
+app.route("/api/sites", sitesRoutes)
 
 export default app

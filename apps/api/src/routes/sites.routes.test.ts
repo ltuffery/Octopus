@@ -3,7 +3,7 @@ import app from '../index';
 import { db } from '../db';
 import { sites } from '../db/schema';
 
-const baseUrl = 'http://localhost';
+const baseUrl = 'http://localhost/api';
 
 describe('Sites Routes', () => {
     beforeEach(async () => {

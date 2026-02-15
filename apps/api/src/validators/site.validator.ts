@@ -1,18 +1,5 @@
-import { z } from 'zod';
-
-interface Site {
-    name: string
-    source: 'local' | 'github' | 'gitlab'
-    sourceUrl: string
-    localPath: string
-    framework: string
-    branch: string
-    buildCommand: string
-    startCommand: string
-    envVars: string[]
-    domain: string
-    port: number
-}
+import {z} from 'zod';
+import {Site} from "@octopus/shared";
 
 const baseSiteSchema = z.object({
     name: z
@@ -21,7 +8,7 @@ const baseSiteSchema = z.object({
         .max(100, 'Name must not exceed 100 characters')
         .regex(/^[a-zA-Z0-9-_]+$/, 'Name must contain only lowercase letters, uppercase letters, numbers, and hyphens'),
     source: z.enum(['local', 'github', 'gitlab'], {
-        errorMap: () => ({ message: 'Source must be either "local" or "github"' }),
+        errorMap: () => ({message: 'Source must be either "local" or "github"'}),
     }),
     sourceUrl: z.string().url('Invalid URL format').optional(),
     localPath: z

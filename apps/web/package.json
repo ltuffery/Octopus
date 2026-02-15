@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@octopus/shared": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/vue-table": "^8.21.3",
     "@vueuse/core": "^14.2.1",

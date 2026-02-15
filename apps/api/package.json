@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@octopus/api",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "db:generate": "drizzle-kit generate",
@@ -14,7 +14,8 @@
     "hono": "^4.11.9",
     "pg": "^8.18.0",
     "postgres": "^3.4.8",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@octopus/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",
