@@ -2,10 +2,7 @@
 import { ref, computed } from 'vue';
 import type { Ref } from 'vue';
 import {useFetch} from "@vueuse/core";
-import type {Site} from "@octopus/shared";
-
-export type SiteStatus = 'running' | 'stopped' | 'building' | 'error' | 'starting' | 'stopping';
-export type SiteSource = 'github' | 'gitlab' | 'local';
+import type {CreateSite, Site, SiteSource} from "@octopus/shared";
 
 export interface DockerContainer {
     id: string;
@@ -49,7 +46,7 @@ export interface CreateSitePayload {
         type: Database['type'];
         name: string;
     }>;
-    envVars?: Record<string, string>;
+    envVars?: string[];
     buildCommand?: string;
     startCommand?: string;
 }
@@ -86,80 +83,36 @@ export function useSites() {
     const createSite = async (payload: CreateSitePayload): Promise<Site> => {
         isCreating.value = true;
         try {
-            await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate build time
-
-            const newSite: Site = {
-                id: `site-${Date.now()}`,
+            const newSite: CreateSite = {
                 name: payload.name,
                 domain: payload.domain || `${payload.name}.dev.local`,
-                description: `New ${payload.framework} site`,
-                status: 'building',
                 source: payload.source,
-                sourceUrl: payload.sourceUrl,
-                localPath: payload.localPath,
                 framework: payload.framework,
                 branch: payload.branch || 'main',
 
-                containers: [
-                    {
-                        id: `container-${Date.now()}`,
-                        name: `${payload.name}-web`,
-                        image: `${payload.framework}:latest`,
-                        status: 'running',
-                        ports: [{ host: 3000, container: 3000 }],
-                        created: new Date(),
-                    },
-                ],
-
-                volumes: [
-                    {
-                        id: `volume-${Date.now()}`,
-                        name: `${payload.name}-data`,
-                        mountPath: '/app/data',
-                        size: '10GB',
-                        used: '0GB',
-                        available: '10GB',
-                    },
-                ],
-
-                databases: payload.databases?.map((db, i) => ({
-                    id: `db-${Date.now()}-${i}`,
-                    type: db.type,
-                    name: db.name,
-                    host: 'localhost',
-                    port: 5432 + i,
-                    username: 'admin',
-                    status: 'connected',
-                    size: '0MB',
-                })) || [],
-
-                cpu: 0,
-                memory: 0,
-                disk: 0,
-
-                url: `http://${payload.name}.dev.local:3000`,
-
-                requests: 0,
-                uptime: 100,
-                lastDeploy: new Date(),
-
-                envVars: payload.envVars || {},
+                envVars: payload.envVars || [],
                 buildCommand: payload.buildCommand,
                 startCommand: payload.startCommand,
                 port: 3000,
-
-                createdAt: new Date(),
-                updatedAt: new Date(),
             };
 
-            // Simulate status changes
-            setTimeout(() => {
-                const site = sites.value.find(s => s.id === newSite.id);
-                if (site) site.status = 'running';
-            }, 2000);
+            if (payload.source === 'local') {
+                newSite.localPath = payload.localPath
+            } else {
+                newSite.sourceUrl = payload.sourceUrl
+            }
 
-            sites.value.unshift(newSite);
-            return newSite;
+            const {data} = await useFetch<Site>(`http://localhost:3000/api/sites`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newSite),
+            }).json()
+            const site: Site = data.value
+
+            sites.value.unshift(site);
+            return site;
         } catch (error) {
             console.error('Failed to create site:', error);
             throw error;
@@ -216,9 +169,9 @@ export function useSites() {
             stopped: sites.value.filter(s => s.status === 'stopped').length,
             building: sites.value.filter(s => s.status === 'building').length,
             error: sites.value.filter(s => s.status === 'error').length,
-            totalRequests: sites.value.reduce((sum, s) => sum + 0, 0),
+            totalRequests: sites.value.reduce((sum) => sum, 0),
             avgUptime: sites.value.length > 0
-                ? sites.value.reduce((sum, s) => sum + 0, 0) / sites.value.length
+                ? sites.value.reduce((sum) => sum, 0) / sites.value.length
                 : 0,
         };
     });

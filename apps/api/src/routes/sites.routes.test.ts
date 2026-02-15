@@ -44,8 +44,7 @@ describe('Sites Routes', () => {
             const data = await res.json()
 
             expect(res.status).toBe(201)
-            expect(data.success).toBeTrue()
-            expect(data.data.name).toEqual('test-site')
+            expect(data.name).toEqual('test-site')
         })
     })
 });

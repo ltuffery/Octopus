@@ -23,7 +23,7 @@ sitesRoutes.post('/', zValidator('json', createSiteSchema), async (c) => {
         })
         .returning()
 
-    return c.json({ success: true, data: newSite }, 201)
+    return c.json(newSite, 201)
 })
 
 export default sitesRoutes
