@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Bun
+.bun
+bun.lockb
+
+# Environment
+.env
+.env.local
+
+# Build
+dist
+.cache
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+coverage
+playwright-report
+test-results
+
+# Drizzle
+drizzle
