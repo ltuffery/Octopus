@@ -1,32 +1,24 @@
-import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, text, timestamp, jsonb, integer, pgEnum } from 'drizzle-orm/pg-core';
 
-export const webhooks = pgTable('webhooks', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  url: text('url').notNull(),
-  method: text('method').default('POST'),
-  headers: text('headers'),
-  body: text('body'),
-  isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-})
+// Enums
+export const sourceEnum = pgEnum('source', ['local', 'github']);
+export const statusEnum = pgEnum('status', ['pending', 'building', 'running', 'stopped', 'error']);
 
-export const crons = pgTable('crons', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  schedule: text('schedule').notNull(),
-  webhookId: integer('webhook_id').references(() => webhooks.id),
-  isActive: boolean('is_active').default(true),
-  lastRun: timestamp('last_run'),
-  createdAt: timestamp('created_at').defaultNow(),
-})
-
-export const logs = pgTable('logs', {
-  id: serial('id').primaryKey(),
-  webhookId: integer('webhook_id').references(() => webhooks.id),
-  cronId: integer('cron_id').references(() => crons.id),
-  status: integer('status'),
-  response: text('response'),
-  error: text('error'),
-  executedAt: timestamp('executed_at').defaultNow(),
-})
+// Table sites
+export const sites = pgTable('sites', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: varchar('name', { length: 100 }).notNull().unique(),
+    source: sourceEnum('source').notNull(),
+    sourceUrl: text('source_url'),
+    localPath: text('local_path'),
+    framework: varchar('framework'),
+    branch: varchar('branch', { length: 100 }),
+    buildCommand: text('build_command'),
+    startCommand: text('start_command'),
+    envVars: jsonb('env_vars'),
+    domain: varchar('domain', { length: 255 }),
+    port: integer('port'),
+    status: statusEnum('status').notNull().default('pending'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});

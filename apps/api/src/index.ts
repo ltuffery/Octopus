@@ -1,13 +1,8 @@
 import { Hono } from 'hono'
+import sitesRoutes from "./routes/sites.routes";
 
 const app = new Hono()
 
-app.get('/', (c) => c.json({ message: 'Octopus API 🐙' }))
+app.route("/sites", sitesRoutes)
 
-const port = 8080
-console.log(`🚀 Server running on http://localhost:${port}`)
-
-export default {
-  port,
-  fetch: app.fetch,
-}
+export default app
