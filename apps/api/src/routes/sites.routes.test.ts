@@ -46,5 +46,35 @@ describe('Sites Routes', () => {
             expect(res.status).toBe(201)
             expect(data.name).toEqual('test-site')
         })
+
+        it('duplicate name', async () => {
+            await db.insert(sites).values({
+                name: 'existing-site',
+                source: 'local',
+                localPath: '/var/www/existing',
+                framework: 'php',
+                port: 1234,
+            });
+
+            const payload = {
+                name: 'existing-site',
+                source: 'local',
+                framework: 'php',
+                localPath: '/var/www/existing',
+                port: 1234,
+            }
+            const req = new Request(`${baseUrl}/sites`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            await app.fetch(req)
+            const res = await app.fetch(req)
+
+            console.log(await res.text())
+
+            expect(res.status).toBe(201)
+            // expect(data.name).toEqual('test-site')
+        })
     })
 });
